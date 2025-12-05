@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Laboratório Virtual de Química — Tudo em 1</title>
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#fff; --primary:#0b63b6; --muted:#6b7280;
+      --accent:#dbeafe; --box:#eef6ff;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Inter,Arial,sans-serif;background:var(--bg);margin:0;color:#111}
+    header{background:var(--primary);color:#fff;padding:18px 12px;text-align:center}
+    header h1{margin:0;font-size:1.4rem}
+    .menu{display:flex;gap:8px;justify-content:center;padding:12px;background:#0f4f8a;flex-wrap:wrap}
+    .menu button{background:var(--card);border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    .menu button.active{background:#dbeeff}
+    .container{max-width:1000px;margin:20px auto;padding:16px}
+    section.card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(16,24,40,0.06);margin-bottom:16px}
+    h2{color:var(--primary);margin-top:0}
+    .equip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .equip{background:var(--box);padding:10px;border-radius:8px}
+    .equip img{width:100%;border-radius:6px;display:block;margin-top:8px;object-fit:cover}
+    .lab-imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+    pre.code {background:#0f1724;color:#fff;padding:12px;border-radius:8px;overflow:auto}
+    .role-box{background:#eef6ff;padding:12px;border-radius:8px;border-left:4px solid var(--primary)}
+    ul{margin-left:18px}
+    footer{text-align:center;color:var(--muted);padding:14px 6px}
+    .small{font-size:0.9rem;color:var(--muted)}
+    .option{display:block;width:100%;text-align:left;padding:10px;border-radius:8px;border:1px solid #e6eefc;background:var(--accent);cursor:pointer;margin:6px 0}
+    .tabela{display:grid;grid-template-columns:repeat(8,60px);gap:6px;justify-content:center}
+    .elem{width:60px;height:60px;border-radius:8px;background:#111827;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid #374151}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal{background:#0f1724;color:#fff;padding:16px;border-radius:10px;max-width:520px;width:94%}
+    .close{background:#ef4444;border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer}
+    @media (max-width:600px){ .tabela{grid-template-columns:repeat(5,56px)} }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Laboratório Virtual de Química — Tudo em 1</h1>
+  <div style="font-size:0.9rem;margin-top:6px">Aprenda, pratique e explore — tudo direto no navegador</div>
+</header>
+
+<nav class="menu" role="navigation" aria-label="Menu principal">
+  <button class="tab-btn active" data-tab="inicio">Início</button>
+  <button class="tab-btn" data-tab="quiz">Quiz</button>
+  <button class="tab-btn" data-tab="duvidas">Dúvidas</button>
+  <button class="tab-btn" data-tab="equipamentos">Equipamentos</button>
+  <button class="tab-btn" data-tab="industria">Indústria</button>
+  <button class="tab-btn" data-tab="labindustrial">Laboratório Industrial</button>
+  <button class="tab-btn" data-tab="tabela">Tabela Periódica</button>
+</nav>
+
+<main class="container">
+
+  <!-- INÍCIO -->
+  <section id="inicio" class="card tab">
+    <h2>Bem-vindo ao Laboratório Virtual</h2>
+    <p>Use o menu acima para explorar: <strong>Quiz</strong>, <strong>Dúvidas</strong>, <strong>Equipamentos</strong>, <strong>Indústria</strong>, <strong>Laboratório Industrial</strong> e a <strong>Tabela Periódica</strong>.</p>
+    <div class="role-box" style="margin-top:12px">
+      <strong>Objetivo desta versão:</strong> oferecer conteúdo técnico para formação e consulta rápida de processos analíticos industriais (espectrofotometria UV-Vis, curva de calibração, QA/QC) e explicar o papel do químico industrial.
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="card tab" style="display:none">
+    <h2>Quiz de Química</h2>
+    <div id="quiz-area"></div>
+    <div id="quiz-result" style="margin-top:10px;font-weight:700"></div>
+    <button id="quiz-reset" class="send-btn">Reiniciar quiz</button>
+  </section>
+
+  <!-- DÚVIDAS -->
+  <section id="duvidas" class="card tab" style="display:none">
+    <h2>Tire sua dúvida</h2>
+    <input id="nome" placeholder="Seu nome (opcional)" />
+    <textarea id="texto" rows="4" placeholder="Escreva sua dúvida..."></textarea>
+    <button id="enviar" class="send-btn">Enviar dúvida</button>
+    <div id="lista-duvidas" style="margin-top:12px"></div>
+  </section>
+
+  <!-- EQUIPAMENTOS -->
+  <section id="equipamentos" class="card tab" style="display:none">
+    <h2>Equipamentos de Laboratório (rápido)</h2>
+    <div class="equip-grid">
+      <div class="equip">
+        <strong>Espectrofotômetro UV-Vis</strong>
+        <p>Instrumento que mede absorbância em função do comprimento de onda; usado para quantificação de analitos por Beer-Lambert.</p>
+        <img src="img/espectrofotometro_uvvis.jpg" alt="Espectrofotômetro UV-Vis">
+      </div>
+      <div class="equip">
+        <strong>Ilustração — Curva de calibração</strong>
+        <p>Exemplo de curva absorbância × concentração usada para quantificação.</p>
+        <img src="img/curva_calibracao.jpg" alt="Curva de calibração">
+      </div>
+      <div class="equip">
+        <strong>pHmetro de bancada</strong>
+        <p>Usado para medir o potencial hidrogeniônico; calibração periódica em tampões padrão é obrigatória.</p>
+        <img src="img/phmetro.jpg" alt="pHmetro">
+      </div>
+    </div>
+  </section>
+
+  <!-- INDÚSTRIA -->
+  <section id="industria" class="card tab" style="display:none">
+    <h2>Equipamentos Industriais</h2>
+    <p>Na indústria química, os profissionais monitoram variáveis como pressão, temperatura e concentração. A instrumentação industrial garante segurança e precisão.</p>
+    <div class="equip-grid">
+      <div class="equip">
+        <strong>Balança Analítica</strong>
+        <p>Resolução típica 0,0001 g; usada em preparo de padrões e pesagens críticas.</p>
+        <img src="img/balanca_analitica.jpg">
+      </div>
+      <div class="equip">
+        <strong>Condutivímetro</strong>
+        <p>Mede condutividade elétrica de soluções (µS/cm a mS/cm) — útil para controle de pureza e concentração iônica.</p>
+        <img src="img/condutivimetro.jpg" >
+      </div>
+      <div class="equip">
+        <strong>Detector de Gases / Segurança</strong>
+        <p>Monitora gases tóxicos e inflamáveis; integração com CLP e alarmes é prática comum em plantas.</p>
+        <img src="img/analises_laboratorio.jpg" alt="Controle e segurança (ilustração)">
+      </div>
+    </div>
+    <div class="imagem-condutivimetro">
+  <img src="condutivimetro.jpg" alt="Condutivímetro" style="width: 100%; max-width: 500px; height: auto;">
+
+</div>
+
+  </section>
+
+  <!-- LABORATÓRIO INDUSTRIAL (TEXTO TÉCNICO) -->
+  <section id="labindustrial" class="card tab" style="display:none">
+    <h2>Laboratório Industrial — Controle de Qualidade (Técnico)</h2>
+
+    <h3 style="color:var(--primary);margin-top:8px">1) Espectrofotometria UV-Vis — princípios e aplicação</h3>
+    <p><strong>Princípio físico:</strong> um espectrofotômetro UV-Vis mede a <em>absorbância</em> de uma amostra em função do comprimento de onda. A absorbância A está relacionada à concentração c pela Lei de Beer-Lambert:</p>
+    <pre class="code">A = ε · b · c</pre>
+    <p>onde <em>ε</em> é o coeficiente de absorção molar (L·mol⁻¹·cm⁻¹), <em>b</em> o caminho óptico (cm) e <em>c</em> a concentração (mol·L⁻¹). Em aplicações industriais usamos a região <strong>190–1100 nm</strong> para cobrir UV e visível, permitindo detectar grupos funcionais e complexos metálicos usados em análises de <strong>P, N e K</strong> após preparo adequado.</p>
+
+    <h3 style="color:var(--primary);margin-top:12px">2) Curva de calibração e quantificação</h3>
+    <p>Para quantificação, constrói-se uma curva de calibração com padrões de concentração conhecida. Procedimento típico:</p>
+    <ul>
+      <li>Preparar pelo menos 5 padrões com concentrações uniformemente distribuídas na faixa esperada.</li>
+      <li>Medir absorbância no comprimento de onda de máxima resposta (λmax).</li>
+      <li>Traçar absorbância × concentração e ajustar por regressão linear (R² ≥ 0.995 para método validado).</li>
+      <li>Calcular concentração das amostras interpolando na curva.</li>
+    </ul>
+
+    <div class="lab-imgs">
+      <img src="img/espectrofotometro_uvvis.jpg" alt="Espectrofotômetro UV-Vis (local)">
+      <img src="img/curva_calibracao.jpg" alt="Curva de calibração (local)">
+    </div>
+
+    <h3 style="color:var(--primary);margin-top:12px">3) Preparo de amostras (boas práticas)</h3>
+    <p>Preparo padronizado garante reprodutibilidade:</p>
+    <ul>
+      <li>Homogeneização da amostra — evitar estratificação.</li>
+      <li>Digestão ou extração quando necessário (ex.: digestão ácida para P total).</li>
+      <li>Filtração/centrifugação para remover partículas que causam espalhamento (scattering).</li>
+      <li>Diluição em branco adequado para ficar dentro da faixa linear da curva de calibração.</li>
+    </ul>
+
+    <h3 style="color:var(--primary);margin-top:12px">4) Equipamentos auxiliares e métricas importantes</h3>
+    <div class="equip-grid">
+      <div class="equip">
+        <strong>pHmetro de bancada</strong>
+        <p>Calibração em 2 ou 3 pontos (pH 4, 7 e 10). Precisão e drift devem ser verificados antes de ensaios críticos.</p>
+        <img src="img/phmetro.jpg" alt="pHmetro (local)">
+      </div>
+      <div class="equip">
+        <strong>Balança analítica</strong>
+        <p>Resolução típica 0,0001 g. Verificar linearidade e tara; usar peso padrão certificado para verificação periódica.</p>
+        <img src="img/balanca_analitica.jpg" alt="Balança analítica (local)">
+      </div>
+      <div class="equip">
+        <strong>Condutivímetro</strong>
+        <p>Mede condutividade (µS/cm a mS/cm). Usado em checagem de soluções e controle de pureza.</p>
+        <img src="img/condutivimetro.jpg" alt="Condutivímetro (local)">
+      </div>
+    </div>
+
+    <h3 style="color:var(--primary);margin-top:12px">5) QA / QC e validação de métodos</h3>
+    <p>Elementos essenciais do sistema de qualidade:</p>
+    <ul>
+      <li><strong>Blancos analíticos</strong> e <strong>padrões de controle</strong> em cada lote de análises.</li>
+      <li>Réplica analítica (n ≥ 2) e cálculo de desvio padrão e RSD (%).</li>
+      <li>Intervalos de aceitação — ex.: RSD ≤ 2% para análises de rotina (dependendo do método).</li>
+      <li>Plano de calibração do instrumento e registros (rastreamento).</li>
+    </ul>
+
+    <h3 style="color:var(--primary);margin-top:12px">6) O que faz um químico industrial?</h3>
+    <p>O químico industrial atua em várias frentes dentro da planta e do laboratório:</p>
+    <ul>
+      <li>Desenvolvimento e otimização de métodos analíticos (espectrofotometria, titulação, cromatografia quando aplicável).</li>
+      <li>Interpretação de dados analíticos e emissão de laudos técnicos.</li>
+      <li>Controle de processos: ajuste de pH, concentração de reagentes, ponto de equivalência, etc.</li>
+      <li>Gestão de qualidade: elaboração de SOPs, validação de métodos, investigação de desvios e ação corretiva.</li>
+      <li>Segurança química: análise de riscos, práticas de contenção e descarte de resíduos.</li>
+    </ul>
+
+    <div class="lab-imgs">
+      <img src="img/quimico_bancada.jpg" alt="Químico em bancada (local)">
+      <img src="img/analises_laboratorio.jpg" alt="Análises laboratoriais (local)">
+    </div>
+
+    <h3 style="color:var(--primary);margin-top:12px">7) Exemplo de fluxo analítico (síntese)</h3>
+    <ol>
+      <li>Recebimento de amostra e codificação (etiqueta com ID).</li>
+      <li>Preparação: secagem/homogeneização/digestão conforme método.</li>
+      <li>Medida em instrumentação (ex.: UV-Vis em λmax definido).</li>
+      <li>Tratamento de dados: subtrair branco, aplicar diluição, interpolar na curva de calibração.</li>
+      <li>Registro no sistema e emissão de relatório com incerteza e verificação de conformidade.</li>
+    </ol>
+
+    <p class="small" style="margin-top:12px">Observação: este conteúdo é um resumo técnico — para procedimentos rotineiros use SOPs documentadas pela unidade e siga normas ABNT/ANVISA/MAPA quando aplicáveis.</p>
+  </section>
+
+  <!-- TABELA -->
+  <section id="tabela" class="card tab" style="display:none">
+    <h2>Tabela Periódica Interativa</h2>
+    <div id="tabela-grid" class="tabela"></div>
+  </section>
+
+</main>
+
+<!-- Modal para elementos -->
+<div id="overlay" class="modal-overlay" aria-hidden="true">
+  <div class="modal" role="dialog">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 id="m-nome"></h3><button class="close" id="closeModal">Fechar</button>
+    </div>
+    <p><strong>Símbolo:</strong> <span id="m-simbolo"></span> • <strong> Nº:</strong> <span id="m-num"></span></p>
+    <p><strong>Massa:</strong> <span id="m-massa"></span></p>
+  </div>
+</div>
+
+<footer>
+  <small>© 2025 Laboratório Virtual — Uso educacional. Conteúdo técnico resumido para consulta.</small>
+</footer>
+
+<script>
+  // --- Navegação ---
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const id = btn.dataset.tab;
+      document.querySelectorAll('.tab').forEach(sec => sec.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+
+  // --- QUIZ (simples) ---
+  const quiz = [
+    {pergunta:"Qual é a fórmula da água?", opcoes:["H2O","CO2","NaCl","O2"], correta:0},
+    {pergunta:"Qual é o símbolo do ferro?", opcoes:["Fe","Fr","Fi","Fn"], correta:0}
+  ];
+  let qIndex=0, score=0;
+  const quizArea = document.getElementById('quiz-area');
+  const quizResult = document.getElementById('quiz-result');
+  function showQuestion(){
+    if(qIndex >= quiz.length){
+      quizArea.innerHTML = "<p>Fim do quiz!</p>";
+      quizResult.textContent = `Você acertou ${score} de ${quiz.length}.`;
+      return;
+    }
+    const q = quiz[qIndex];
+    quizArea.innerHTML = `<div class="question"><strong>${qIndex+1}. ${q.pergunta}</strong></div>` +
+      q.opcoes.map((o,i)=>`<button class="option" onclick="answer(${i})">${o}</button>`).join('');
+    quizResult.textContent = '';
+  }
+  function answer(choice){
+    const q = quiz[qIndex];
+    if(choice === q.correta){ score++; alert('✅ Correto!'); }
+    else alert('❌ Errado!');
+    qIndex++; showQuestion();
+  }
+  document.getElementById('quiz-reset').addEventListener('click', ()=>{ qIndex=0; score=0; showQuestion(); });
+  showQuestion();
+
+  // --- DÚVIDAS (session only) ---
+  const duvidas = [];
+  const lista = document.getElementById('lista-duvidas');
+  document.getElementById('enviar').addEventListener('click', ()=>{
+    const nome = document.getElementById('nome').value.trim() || 'Anônimo';
+    const texto = document.getElementById('texto').value.trim();
+    if(!texto){ alert('Escreva sua dúvida antes de enviar'); return; }
+    duvidas.unshift({nome, texto, hora: new Date().toLocaleString()});
+    document.getElementById('texto').value = '';
+    lista.innerHTML = duvidas.map(d=>`<div style="border-top:1px solid #eee;padding:6px 0"><strong>${escapeHtml(d.nome)}</strong> <small> • ${d.hora}</small><p>${escapeHtml(d.texto)}</p></div>`).join('');
+  });
+  function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+  // --- TABELA (simplificada) ---
+  const elementos = [
+    {numero:1, simbolo:'H', nome:'Hidrogênio', massa:'1.008'},
+    {numero:2, simbolo:'He', nome:'Hélio', massa:'4.0026'}
+  ];
+  const grid = document.getElementById('tabela-grid');
+  elementos.forEach(el=>{
+    const div = document.createElement('div');
+    div.className = 'elem';
+    div.innerHTML = `<div style="font-size:0.85rem">${el.simbolo}</div><div style="font-size:0.65rem;color:#9ca3af">${el.numero}</div>`;
+    div.tabIndex = 0;
+    div.setAttribute('role','button');
+    div.title = `${el.nome} (${el.simbolo})`;
+    div.addEventListener('click', ()=> openModal(el));
+    div.addEventListener('keydown', (e)=>{ if(e.key==='Enter') openModal(el); });
+    grid.appendChild(div);
+  });
+
+  // --- Modal ---
+  const overlay = document.getElementById('overlay');
+  const mNome = document.getElementById('m-nome');
+  const mSim = document.getElementById('m-simbolo');
+  const mNum = document.getElementById('m-num');
+  const mMassa = document.getElementById('m-massa');
+  document.getElementById('closeModal').addEventListener('click', ()=> overlay.style.display='none');
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) overlay.style.display='none'; });
+  function openModal(el){
+    mNome.textContent = el.nome;
+    mSim.textContent = el.simbolo;
+    mNum.textContent = el.numero;
+    mMassa.textContent = el.massa || '—';
+    overlay.style.display = 'flex';
+    document.querySelector('.modal').focus();
+  }
+</script>
+</body>
+</html>
